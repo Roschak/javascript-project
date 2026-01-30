@@ -1,17 +1,17 @@
-// TODO 1: Get initial memory usage (rss is Resident Set Size)
+// TODO 1: Isi dengan nilai heapUsed dari instance process.memoryUsage.
 const initialMemoryUsage = process.memoryUsage().heapUsed;
 
-// TODO 2: Your name
-const yourName = "roschak";
+// TODO 2: Isi dengan nilai index ke-2 dari process.argv.
+const yourName = process.argv[2];
 
-// TODO 3: The environment (e.g., development or production)
-const environment = process.env.NODE_ENV || 'development';
+// TODO 3: Isi dengan nilai NODE_ENV dari process.env.
+const environment = process.env.NODE_ENV;
 
 for(let i = 0; i <= 10000; i++) {
-    // This loop executes quickly, but it mimics a workload
+    // Proses looping ini akan membuat penggunaan memori naik
 }
 
-// TODO 4: Get memory usage after the loop
+// TODO 4: Isi dengan nilai heapUsed dari instance process.memoryUsage.
 const currentMemoryUsage = process.memoryUsage().heapUsed;
 
 console.log(`Hai, ${yourName}`);
