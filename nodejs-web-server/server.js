@@ -1,13 +1,97 @@
 import http from 'http';
 
 const requestListener = (request, response) => {
-    // Pengaturan standar Header agar client tahu kita mengirim HTML
-    response.setHeader('content-type', 'text/html');
+// start
+    /** * 1. RESPONSE HEADER 
+     * Bagian ini menentukan 'identitas' paket data yang dikirim server.
+     */
+    // Memberitahu client bahwa server mengirim data dalam format JSON, bukan HTML lagi.
+    response.setHeader('Content-Type', 'application/json');
     
-    // Secara default kita set 200, nanti akan diubah di dalam logika jika perlu
+    // Header kustom untuk memberi tahu teknologi server. (Bisa dihapus untuk alasan keamanan).
+    response.setHeader('X-Powered-By', 'Node.js');
+
+    /** * 2. INITIAL CONFIGURATION 
+     */
+    // Mengatur status kode default ke 200 (OK).
     response.statusCode = 200;
 
+    // Mengambil data Method (GET/POST/dll) dan URL dari permintaan client.
     const { method, url } = request;
+
+    /** * 3. LOGIKA ROUTING 
+     * Menentukan apa yang harus dikirim berdasarkan alamat URL dan cara aksesnya.
+     */
+
+    // JALUR: Homepage ('/')
+    if (url === '/') {
+        if (method === 'GET') {
+            response.statusCode = 200;
+            // JSON.stringify mengubah objek JS menjadi string JSON agar bisa dikirim melalui jaringan.
+            response.end(JSON.stringify({
+                message: 'Ini adalah homepage',
+            }));
+        } else {
+            response.statusCode = 400; // Bad Request jika bukan GET
+            response.end(JSON.stringify({
+                message: `Halaman tidak dapat diakses dengan ${method} request`,
+            }));
+        }
+    } 
+    
+    // JALUR: About ('/about')
+    else if (url === '/about') {
+        if (method === 'GET') {
+            response.statusCode = 200;
+            response.end(JSON.stringify({
+                message: 'Halo! Ini adalah halaman about',
+            }));
+        } 
+        // Bagian ini mengolah data yang dikirim client (Body Request)
+        else if (method === 'POST') {
+            let body = [];
+
+            // Mengambil potongan data (chunk) yang masuk
+            request.on('data', (chunk) => {
+                body.push(chunk);
+            });
+
+            // Setelah semua data masuk, proses datanya
+            request.on('end', () => {
+                body = Buffer.concat(body).toString();
+                const { name } = JSON.parse(body); // Mengubah JSON string dari client jadi objek
+                
+                response.statusCode = 200;
+                response.end(JSON.stringify({
+                    message: `Halo, ${name}! Ini adalah halaman about`,
+                }));
+            });
+        } 
+        else {
+            response.statusCode = 400;
+            response.end(JSON.stringify({
+                message: `Halaman tidak dapat diakses menggunakan ${method} request`,
+            }));
+        }
+    } 
+
+    // JALUR: 404 Not Found (Jika URL tidak terdaftar)
+    else {
+        response.statusCode = 404;
+        response.end(JSON.stringify({
+            message: 'Halaman tidak ditemukan!',
+        }));
+    }
+// end
+    // ==========================================
+
+    // Pengaturan standar Header agar client tahu kita mengirim HTML
+   //response.setHeader('content-type', 'text/html');
+    
+    // Secara default kita set 200, nanti akan diubah di dalam logika jika perlu
+   //response.statusCode = 200;
+
+    //const { method, url } = request;
 
     // ==========================================
     // SEKSI 2: LOGIKA ROUTING & STATUS CODE
@@ -15,15 +99,15 @@ const requestListener = (request, response) => {
 
     // Start Jalur Homepage ('/')
     // Cara eksekusi: curl -X GET http://localhost:5000/ -i
-    if (url === '/') {
-        if (method === 'GET') {
-            response.statusCode = 200; // OK
-            response.end('<h1>Ini adalah homepage</h1>');
-        } else {
-            response.statusCode = 400; // Bad Request
-            response.end(`<h1>Halaman tidak dapat diakses dengan ${method} request</h1>`);
-        }
-    } 
+  // if (url === '/') {
+      //  if (method === 'GET') {
+      //      response.statusCode = 200; // OK
+      //      response.end('<h1>Ini adalah homepage</h1>');
+      //  } else {
+      //      response.statusCode = 400; // Bad Request
+      //      response.end(`<h1>Halaman tidak dapat diakses dengan ${method} request</h1>`);
+      //  }
+  //  } 
     // End Jalur Homepage
     
     // Start Jalur About ('/about')
